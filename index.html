@@ -208,12 +208,15 @@
     <section class="screen active" id="startScreen">
         <header>
             <h1>Propiedades de la materia</h1>
-            <div class="subtitle">Identifica las propiedades correctas</div>
+            <!-- SUBTÍTULO MODIFICADO -->
+            <div class="subtitle">Identifica las distintas propiedades de la materia</div>
         </header>
 
         <div class="start-content">
             <div class="advice-box">
-                <span class="advice-text">Observa las imágenes y selecciona aquella que represente la propiedad que se indica. ¡Cuidado con los intrusos!
+                <!-- TEXTO MODIFICADO CON FORMATO -->
+                <span class="advice-text" style="text-align: center; display: block;">
+                    Elegimos los materiales para construir objetos según sus propiedades: <span class="highlight-keyword">duro</span> o <span class="highlight-keyword">blando</span>, <span class="highlight-keyword">suave</span> o <span class="highlight-keyword">áspero</span>, <span class="highlight-keyword">flexible</span> o <span class="highlight-keyword">rígido</span>, y <span class="highlight-keyword">transparente</span> u <span class="highlight-keyword">opaco</span>.
                     <strong style="display:block; margin-top:0.5rem; text-align: center;">¡Ánimo!</strong>
                 </span>
             </div>
@@ -275,6 +278,9 @@
     let soundEnabled = true;
     let audioUnlocked = false;
     let isMuted = false;
+    
+    // Variable global para almacenar la voz seleccionada
+    let selectedVoice = null;
 
     let startTime = 0;
     let timerInterval = null;
@@ -454,12 +460,52 @@
         playSound('tap');
     }
     
+    /* --- FUNCIÓN PARA CARGAR VOZ FORZADA (SEGÚN INSTRUCCIONES) --- */
+    function loadVoices() {
+        const voices = window.speechSynthesis.getVoices();
+        
+        // 1. Prioridad Google: Busca "Google español"
+        let voice = voices.find(v => v.name === "Google español");
+        
+        // 2. Alternativa Microsoft/Natural: Si no hay Google, busca es-ES con "Microsoft" o "Natural"
+        if (!voice) {
+            voice = voices.find(v => 
+                v.lang === 'es-ES' && 
+                (v.name.includes("Microsoft") || v.name.includes("Natural"))
+            );
+        }
+        
+        // 3. Fallback inteligente: Si no encuentra ninguna de las anteriores, usa una estándar
+        // La lógica de velocidad (rate) se aplicará en la función speak()
+        if (!voice) {
+             voice = voices.find(v => v.lang.startsWith('es')); // Intenta buscar al menos una española
+        }
+        
+        return voice;
+    }
+
+    // Asegurar que las voces estén cargadas
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = () => { selectedVoice = loadVoices(); };
+    }
+    // Intento inicial
+    selectedVoice = loadVoices();
+
     function speak(text) {
         if (!soundEnabled) return;
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'es-ES';
-        utterance.rate = 1.0;
+        
+        // Asignar voz seleccionada
+        if (selectedVoice) {
+            utterance.voice = selectedVoice;
+            utterance.rate = 1.0; // Velocidad normal para voces de alta calidad
+        } else {
+            // Fallback: Voz estándar con velocidad reducida para niños
+            utterance.rate = 0.9; 
+        }
+        
         window.speechSynthesis.speak(utterance);
     }
 
