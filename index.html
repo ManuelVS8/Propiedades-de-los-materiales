@@ -208,13 +208,11 @@
     <section class="screen active" id="startScreen">
         <header>
             <h1>Propiedades de la materia</h1>
-            <!-- SUBTÍTULO MODIFICADO -->
             <div class="subtitle">Identifica las distintas propiedades de la materia</div>
         </header>
 
         <div class="start-content">
             <div class="advice-box">
-                <!-- TEXTO MODIFICADO CON FORMATO -->
                 <span class="advice-text" style="text-align: center; display: block;">
                     Elegimos los materiales para construir objetos según sus propiedades: <span class="highlight-keyword">duro</span> o <span class="highlight-keyword">blando</span>, <span class="highlight-keyword">suave</span> o <span class="highlight-keyword">áspero</span>, <span class="highlight-keyword">flexible</span> o <span class="highlight-keyword">rígido</span>, y <span class="highlight-keyword">transparente</span> u <span class="highlight-keyword">opaco</span>.
                     <strong style="display:block; margin-top:0.5rem; text-align: center;">¡Ánimo!</strong>
@@ -310,7 +308,7 @@
         audioObjects[key] = a; 
     });
 
-    /* --- DICCIONARIO DE IMÁGENES --- */
+    /* --- DICCIONARIO DE IMÁGENES (Biblioteca sin cambios) --- */
     const IMAGES = {
         Algodón: 'https://raw.githubusercontent.com/ManuelVS8/Audios-juegos-SCIENCE/refs/heads/main/C_MEDIO1/Propiedades_Materia/Algod%C3%B3n.png',
         Cojín: 'https://raw.githubusercontent.com/ManuelVS8/Audios-juegos-SCIENCE/refs/heads/main/C_MEDIO1/Propiedades_Materia/Coj%C3%ADn.png',
@@ -340,11 +338,15 @@
         Ventana: 'https://raw.githubusercontent.com/ManuelVS8/Audios-juegos-SCIENCE/refs/heads/main/C_MEDIO1/Propiedades_Materia/Ventana.png'
     };
 
-    /* --- DATOS DEL JUEGO (8 NIVELES) --- */
+    /* --- DATOS DEL JUEGO ACTUALIZADOS (Lógica de opciones múltiples) --- */
     const rawData = [
         {
             prop: "Duro",
-            correct: { name: "Roca", img: IMAGES.Roca },
+            correctOptions: [ // 3 opciones correctas posibles
+                { name: "Roca", img: IMAGES.Roca },
+                { name: "Hierro", img: IMAGES.Hierro },
+                { name: "Diamante", img: IMAGES.Diamante }
+            ],
             incorrect: [
                 { name: "Algodón", img: IMAGES.Algodón },
                 { name: "Cojín", img: IMAGES.Cojín },
@@ -355,7 +357,11 @@
         },
         {
             prop: "Blando",
-            correct: { name: "Cojín", img: IMAGES.Cojín },
+            correctOptions: [
+                { name: "Cojín", img: IMAGES.Cojín },
+                { name: "Esponja", img: IMAGES.Esponja },
+                { name: "Malvavisco", img: IMAGES.Malvavisco }
+            ],
             incorrect: [
                 { name: "Ladrillo", img: IMAGES.Ladrillo },
                 { name: "Diamante", img: IMAGES.Diamante },
@@ -366,7 +372,11 @@
         },
         {
             prop: "Suave",
-            correct: { name: "Pluma", img: IMAGES.Pluma },
+            correctOptions: [
+                { name: "Pluma", img: IMAGES.Pluma },
+                { name: "Peluche", img: IMAGES.Peluche },
+                { name: "Pétalo", img: IMAGES.Pétalo }
+            ],
             incorrect: [
                 { name: "Lija", img: IMAGES.Lija },
                 { name: "Piña", img: IMAGES.Piña },
@@ -377,7 +387,11 @@
         },
         {
             prop: "Áspero",
-            correct: { name: "Lija", img: IMAGES.Lija },
+            correctOptions: [
+                { name: "Lija", img: IMAGES.Lija },
+                { name: "Estropajo", img: IMAGES.Estropajo },
+                { name: "Pómez", img: IMAGES.Pómez }
+            ],
             incorrect: [
                 { name: "Pétalo", img: IMAGES.Pétalo },
                 { name: "Peluche", img: IMAGES.Peluche },
@@ -388,7 +402,11 @@
         },
         {
             prop: "Flexible",
-            correct: { name: "Goma", img: IMAGES.Goma },
+            correctOptions: [
+                { name: "Goma", img: IMAGES.Goma },
+                { name: "Pétalo", img: IMAGES.Pétalo },
+                { name: "Cojín", img: IMAGES.Cojín }
+            ],
             incorrect: [
                 { name: "Lápiz", img: IMAGES.Lápiz },
                 { name: "Roca", img: IMAGES.Roca },
@@ -399,7 +417,11 @@
         },
         {
             prop: "Rígido",
-            correct: { name: "Hierro", img: IMAGES.Hierro },
+            correctOptions: [
+                { name: "Hierro", img: IMAGES.Hierro },
+                { name: "Lápiz", img: IMAGES.Lápiz },
+                { name: "Tabla", img: IMAGES.Tabla }
+            ],
             incorrect: [
                 { name: "Cojín", img: IMAGES.Cojín },
                 { name: "Pluma", img: IMAGES.Pluma },
@@ -410,7 +432,11 @@
         },
         {
             prop: "Transparente",
-            correct: { name: "Vaso", img: IMAGES.Vaso },
+            correctOptions: [
+                { name: "Vaso", img: IMAGES.Vaso },
+                { name: "Pecera", img: IMAGES.Pecera },
+                { name: "Ventana", img: IMAGES.Ventana }
+            ],
             incorrect: [
                 { name: "Piña", img: IMAGES.Piña },
                 { name: "Ladrillo", img: IMAGES.Ladrillo },
@@ -421,7 +447,11 @@
         },
         {
             prop: "Opaco",
-            correct: { name: "Roca", img: IMAGES.Roca },
+            correctOptions: [
+                { name: "Ladrillo", img: IMAGES.Ladrillo },
+                { name: "Tabla", img: IMAGES.Tabla },
+                { name: "Cojín", img: IMAGES.Cojín }
+            ],
             incorrect: [
                 { name: "Ventana", img: IMAGES.Ventana },
                 { name: "Pecera", img: IMAGES.Pecera },
@@ -460,14 +490,14 @@
         playSound('tap');
     }
     
-    /* --- FUNCIÓN PARA CARGAR VOZ FORZADA (SEGÚN INSTRUCCIONES) --- */
+    /* --- FUNCIÓN PARA CARGAR VOZ FORZADA --- */
     function loadVoices() {
         const voices = window.speechSynthesis.getVoices();
         
-        // 1. Prioridad Google: Busca "Google español"
+        // 1. Prioridad Google
         let voice = voices.find(v => v.name === "Google español");
         
-        // 2. Alternativa Microsoft/Natural: Si no hay Google, busca es-ES con "Microsoft" o "Natural"
+        // 2. Alternativa Microsoft/Natural
         if (!voice) {
             voice = voices.find(v => 
                 v.lang === 'es-ES' && 
@@ -475,20 +505,17 @@
             );
         }
         
-        // 3. Fallback inteligente: Si no encuentra ninguna de las anteriores, usa una estándar
-        // La lógica de velocidad (rate) se aplicará en la función speak()
+        // 3. Fallback
         if (!voice) {
-             voice = voices.find(v => v.lang.startsWith('es')); // Intenta buscar al menos una española
+             voice = voices.find(v => v.lang.startsWith('es'));
         }
         
         return voice;
     }
 
-    // Asegurar que las voces estén cargadas
     if (speechSynthesis.onvoiceschanged !== undefined) {
         speechSynthesis.onvoiceschanged = () => { selectedVoice = loadVoices(); };
     }
-    // Intento inicial
     selectedVoice = loadVoices();
 
     function speak(text) {
@@ -497,13 +524,11 @@
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'es-ES';
         
-        // Asignar voz seleccionada
         if (selectedVoice) {
             utterance.voice = selectedVoice;
-            utterance.rate = 1.0; // Velocidad normal para voces de alta calidad
+            utterance.rate = 1.0;
         } else {
-            // Fallback: Voz estándar con velocidad reducida para niños
-            utterance.rate = 0.9; 
+            utterance.rate = 0.9;
         }
         
         window.speechSynthesis.speak(utterance);
@@ -547,7 +572,6 @@
         return `${m}:${s}.${ms}`;
     }
 
-    // Barajado inteligente
     function shuffleSmart(array) {
         const arr = [...array];
         for (let i = arr.length - 1; i > 0; i--) {
@@ -594,7 +618,6 @@
 
     document.getElementById('muteBtn').onclick = toggleSound;
 
-    // Botón Play Audio
     document.getElementById('playBtn').onclick = () => {
         playSound('tap');
         if (gameItems.length > 0 && currentItemIndex < TOTAL_ITEMS) {
@@ -602,7 +625,7 @@
         }
     };
 
-    /* --- JUEGO --- */
+    /* --- JUEGO (Lógica actualizada) --- */
     const gridContainer = document.getElementById('gridContainer');
     const instructionDisplay = document.getElementById('instructionDisplay');
 
@@ -618,22 +641,24 @@
 
     function loadItem() {
         if (currentItemIndex < TOTAL_ITEMS) {
-            answered = true; // Bloquear clicks
+            answered = true;
             const item = gameItems[currentItemIndex];
             
-            // Actualizar UI
             instructionDisplay.innerHTML = `Selecciona: <b>${item.prop}</b>`;
             document.getElementById('levelIndicator').textContent = currentItemIndex + 1;
             
-            // Crear opciones
-            // Tomamos 3 incorrectas aleatorias de la lista de incorrectas
+            // NUEVA LÓGICA: Seleccionar 1 respuesta correcta aleatoria de las 3 posibles
+            const randomCorrectIndex = Math.floor(Math.random() * item.correctOptions.length);
+            const chosenCorrectItem = item.correctOptions[randomCorrectIndex];
+
+            // Seleccionar 3 incorrectas aleatorias
             const incorrectOptions = shuffle(item.incorrect).slice(0, 3);
+
             const options = shuffle([
-                { ...item.correct, isCorrect: true },
+                { ...chosenCorrectItem, isCorrect: true },
                 ...incorrectOptions.map(i => ({ ...i, isCorrect: false }))
             ]);
 
-            // Renderizar Grid
             gridContainer.innerHTML = '';
             options.forEach((opt) => {
                 const cell = document.createElement('div');
@@ -645,7 +670,7 @@
                     if(answered) return;
                     answered = true;
                     
-                    window.speechSynthesis.cancel(); // Cortar audio si habla
+                    window.speechSynthesis.cancel();
 
                     if (opt.isCorrect) {
                         playSound('correct');
@@ -663,7 +688,7 @@
                         
                         setTimeout(() => {
                             cell.classList.remove('incorrect');
-                            answered = false; // Permitir reintentar
+                            answered = false;
                         }, 500);
                     }
                 };
@@ -671,10 +696,9 @@
                 gridContainer.appendChild(cell);
             });
 
-            // Delay de 500ms para voz y desbloqueo
             setTimeout(() => {
                 speak(item.prop);
-                answered = false; // Desbloquear
+                answered = false;
             }, 500);
 
         } else {
