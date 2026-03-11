@@ -287,11 +287,12 @@
     let finalScoreVal = 0;
 
     let correctCount = 0;
+    let errorCount = 0; // NUEVO: Contador de errores
     let currentItemIndex = 0;
     let gameItems = [];
     let answered = false;
 
-    /* --- AUDIOS --- */
+    /* --- Audios --- */
     const audioUrls = {
         correct: 'https://raw.githubusercontent.com/ManuelVS8/Efectos_audio/main/Correcto.mp3',
         error: 'https://raw.githubusercontent.com/ManuelVS8/Efectos_audio/main/Error.mp3',
@@ -308,7 +309,7 @@
         audioObjects[key] = a; 
     });
 
-    /* --- DICCIONARIO DE IMÁGENES (Biblioteca sin cambios) --- */
+    /* --- DICCIONARIO DE IMÁGENES --- */
     const IMAGES = {
         Algodón: 'https://raw.githubusercontent.com/ManuelVS8/Audios-juegos-SCIENCE/refs/heads/main/C_MEDIO1/Propiedades_Materia/Algod%C3%B3n.png',
         Cojín: 'https://raw.githubusercontent.com/ManuelVS8/Audios-juegos-SCIENCE/refs/heads/main/C_MEDIO1/Propiedades_Materia/Coj%C3%ADn.png',
@@ -338,11 +339,11 @@
         Ventana: 'https://raw.githubusercontent.com/ManuelVS8/Audios-juegos-SCIENCE/refs/heads/main/C_MEDIO1/Propiedades_Materia/Ventana.png'
     };
 
-    /* --- DATOS DEL JUEGO ACTUALIZADOS (Lógica de opciones múltiples) --- */
+    /* --- DATOS DEL JUEGO --- */
     const rawData = [
         {
             prop: "Duro",
-            correctOptions: [ // 3 opciones correctas posibles
+            correctOptions: [
                 { name: "Roca", img: IMAGES.Roca },
                 { name: "Hierro", img: IMAGES.Hierro },
                 { name: "Diamante", img: IMAGES.Diamante }
@@ -632,6 +633,7 @@
     function initGame() {
         showScreen('gameScreen');
         correctCount = 0;
+        errorCount = 0; // Reiniciar contador de errores
         currentItemIndex = 0;
         updateProgress('progressFill', 0);
         
@@ -647,7 +649,7 @@
             instructionDisplay.innerHTML = `Selecciona: <b>${item.prop}</b>`;
             document.getElementById('levelIndicator').textContent = currentItemIndex + 1;
             
-            // NUEVA LÓGICA: Seleccionar 1 respuesta correcta aleatoria de las 3 posibles
+            // Seleccionar 1 respuesta correcta aleatoria de las 3 posibles
             const randomCorrectIndex = Math.floor(Math.random() * item.correctOptions.length);
             const chosenCorrectItem = item.correctOptions[randomCorrectIndex];
 
@@ -685,6 +687,7 @@
                     } else {
                         playSound('error');
                         cell.classList.add('incorrect');
+                        errorCount++; // Incrementar contador de errores
                         
                         setTimeout(() => {
                             cell.classList.remove('incorrect');
@@ -709,9 +712,15 @@
     /* --- FINALIZAR --- */
     function finishGame() {
         stopTimer();
+        
+        // DETENER VOCES ACTIVAS
+        window.speechSynthesis.cancel();
+        
         finalTimeVal = elapsed;
         
-        finalScoreVal = Math.round(correctCount * POINTS_PER_ITEM);
+        // NUEVO CÁLCULO DE PUNTUACIÓN
+        // puntuacionFinal = Math.max(0, Math.round((100 / total_preguntas) * (total_aciertos – total_errores)))
+        finalScoreVal = Math.max(0, Math.round((100 / TOTAL_ITEMS) * (correctCount - errorCount)));
 
         document.getElementById('finalScore').textContent = finalScoreVal;
         document.getElementById('finalTime').textContent = formatTime(finalTimeVal);
