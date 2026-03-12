@@ -276,9 +276,10 @@
     let soundEnabled = true;
     let audioUnlocked = false;
     let isMuted = false;
+    let audioContext; // Variable para contexto de audio
     
-    // Variable global para almacenar la voz seleccionada
     let selectedVoice = null;
+    let voicesLoaded = false; // Flag para ChromeOS
 
     let startTime = 0;
     let timerInterval = null;
@@ -287,7 +288,7 @@
     let finalScoreVal = 0;
 
     let correctCount = 0;
-    let errorCount = 0; // NUEVO: Contador de errores
+    let errorCount = 0; 
     let currentItemIndex = 0;
     let gameItems = [];
     let answered = false;
@@ -464,21 +465,27 @@
     ];
 
     /* --- FUNCIONES DE AUDIO --- */
-    function unlockAudio() {
-        if (audioUnlocked) return;
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator(); const g = ctx.createGain();
-            osc.connect(g); g.connect(ctx.destination); g.gain.value = 0.001;
-            osc.start(); osc.stop(ctx.currentTime + 0.01);
-            audioUnlocked = true;
-            isMuted = false;
-        } catch(e) { audioUnlocked = true; }
+    
+    // FIX CHROMEOS: Desbloquear contexto de audio
+    function unlockAudioContext() {
+        if (!audioContext) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioContext.state === 'suspended') {
+            audioContext.resume();
+        }
+        // Buffer silencioso para activar motor
+        const buffer = audioContext.createBuffer(1, 1, 22050);
+        const source = audioContext.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioContext.destination);
+        source.start(0);
+        audioUnlocked = true;
     }
 
     function playSound(type) {
         if (!soundEnabled || isMuted) return;
-        if (!audioUnlocked) unlockAudio();
+        if (!audioUnlocked) unlockAudioContext();
         const a = audioObjects[type];
         if(!a) return;
         try { a.currentTime = 0; a.play(); } catch(e){}
@@ -489,11 +496,15 @@
         isMuted = !soundEnabled;
         document.getElementById('muteBtn').textContent = soundEnabled ? '🔊' : '🔇';
         playSound('tap');
+        if (isMuted) window.speechSynthesis.cancel();
     }
     
     /* --- FUNCIÓN PARA CARGAR VOZ FORZADA --- */
     function loadVoices() {
         const voices = window.speechSynthesis.getVoices();
+        if (voices.length === 0) return;
+
+        voicesLoaded = true;
         
         // 1. Prioridad Google
         let voice = voices.find(v => v.name === "Google español");
@@ -518,6 +529,14 @@
         speechSynthesis.onvoiceschanged = () => { selectedVoice = loadVoices(); };
     }
     selectedVoice = loadVoices();
+
+    // FIX CHROMEOS: Forzar inicialización TTS
+    function forceInitTTS() {
+        if (!voicesLoaded) {
+            const tempUtterance = new SpeechSynthesisUtterance('');
+            speechSynthesis.speak(tempUtterance);
+        }
+    }
 
     function speak(text) {
         if (!soundEnabled) return;
@@ -611,7 +630,9 @@
     }
 
     /* --- FLUJO PRINCIPAL --- */
-    document.getElementById('startBtn').onclick = () => { 
+    document.getElementById('startBtn').onclick = () => {
+        unlockAudioContext();
+        forceInitTTS();
         playSound('tap'); 
         startGlobalTimer();
         initGame();
@@ -633,7 +654,7 @@
     function initGame() {
         showScreen('gameScreen');
         correctCount = 0;
-        errorCount = 0; // Reiniciar contador de errores
+        errorCount = 0;
         currentItemIndex = 0;
         updateProgress('progressFill', 0);
         
@@ -649,11 +670,9 @@
             instructionDisplay.innerHTML = `Selecciona: <b>${item.prop}</b>`;
             document.getElementById('levelIndicator').textContent = currentItemIndex + 1;
             
-            // Seleccionar 1 respuesta correcta aleatoria de las 3 posibles
             const randomCorrectIndex = Math.floor(Math.random() * item.correctOptions.length);
             const chosenCorrectItem = item.correctOptions[randomCorrectIndex];
 
-            // Seleccionar 3 incorrectas aleatorias
             const incorrectOptions = shuffle(item.incorrect).slice(0, 3);
 
             const options = shuffle([
@@ -687,7 +706,7 @@
                     } else {
                         playSound('error');
                         cell.classList.add('incorrect');
-                        errorCount++; // Incrementar contador de errores
+                        errorCount++;
                         
                         setTimeout(() => {
                             cell.classList.remove('incorrect');
@@ -713,13 +732,12 @@
     function finishGame() {
         stopTimer();
         
-        // DETENER VOCES ACTIVAS
+        // FIX: Cancelar audios TTS al terminar
         window.speechSynthesis.cancel();
         
         finalTimeVal = elapsed;
         
         // NUEVO CÁLCULO DE PUNTUACIÓN
-        // puntuacionFinal = Math.max(0, Math.round((100 / total_preguntas) * (total_aciertos – total_errores)))
         finalScoreVal = Math.max(0, Math.round((100 / TOTAL_ITEMS) * (correctCount - errorCount)));
 
         document.getElementById('finalScore').textContent = finalScoreVal;
